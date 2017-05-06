@@ -27,9 +27,6 @@ function receivedMessage(event) {
 
   if (messageText) {
     switch (messageText) {
-      case 'generic':
-        sendGenericMessage(senderID);
-        break;
       default:
         sendTextMessage(senderID, messageText);
     }
