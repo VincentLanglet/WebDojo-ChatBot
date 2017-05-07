@@ -1,7 +1,7 @@
 {
   "serverUrl": "<insert your server url here>",
-  "weatherApiToken": "<insert your weather api token here>",
-  "googleApiToken": "<insert your google geolocalisation api token here>",
+  "weatherApiToken": "5a187b8ce540d9bfa1c495897625e479",
+  "googleApiToken": "AIzaSyAQ6_ZjxSg1wzt1KHxLCRKi4Hd3XAcW-U8",
   "pageAccessToken": "EAAXo1IZAGHTEBAF8XoTUVRViq69JCZBAeH23rVECUMYKhAF0ukbHH5ZAP3ZBmJGyODtlGmi2KcLQNZCNRI2NCGwEmz5rLC3YUZBvvz1mqts1yadshlWmtHXMyUhuspNCaYENDZCG94FMXjohk3xUCc3b82tJMZAyIMZA7XEXXL3j18gZDZD",
   "validationToken": "9LqJzsat3pi2SEdU2e9X6AQ411TaWouZ"
 }
