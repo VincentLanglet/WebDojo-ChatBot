@@ -2,8 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 const
-  chatService = require('../server/chatService');
-  userService = require('../server/userService');
+  chatService = require('../server/chatService'),
+  weatherService = require('../server/weatherService'),
+  WeatherData = require('../server/model/weatherData'),
+  userService = require('../server/userService'),
+  parser = require('json-parser');
 
 /* GET webhook auth. */
 router.get('/', function(req, res, next) {
@@ -33,16 +36,62 @@ router.post('/', function (req, res) {
           if (!userService.isUserKnown(senderId)) {
             userService.addUser(senderId, {
               id: senderId,
-              createdAt: timeOfEvent
+              createdAt: timeOfEvent,
+              status: 'station'
             });
-            chatService.sendTextMessage(
-              senderId,
-              'Hello, my name is Shauny️️ nice to meet you !'
-            );
+            chatService.sendTextMessage(senderId, 'Hello, my name is Shauny, nice to meet you !');
           } else {
             var user = userService.getUser(senderId);
+            var message = event.message;
 
-            chatService.receivedMessage(event);
+            switch(user.status) {
+              case 'station':
+                weatherService.getGeolocalisation(message.text)
+                  .then(function (body) {
+                    var response = parser.parse(body).results;
+
+                    if (response.length <= 0) {
+                      chatService.sendTextMessage(senderId, 'I don\'t find any city with this name');
+                    } else {
+                      var location = response[0].geometry.location;
+
+                      chatService.sendTextMessage(senderId, 'This is the weather forecast for ' + message.text);
+
+                      weatherService.getWeatherForecast(location.lat, location.lng)
+                        .then(function (body) {
+                          var weatherdata = new WeatherData(body);
+                          var carousel = [];
+
+                          weatherdata.forecast.forEach(function (forecast) {
+                            carousel.push(
+                              {
+                                title: forecast.display_date,
+                                subtitle: forecast.weather.description + '\n Max : ' + forecast.temp.max + '°C\n Min : ' + forecast.temp.min + '°C',
+                                image_url: forecast.weather.image,
+                                buttons: [{
+                                  type: "web_url",
+                                  url: "http://maps.google.com/maps?z=12&t=m&q=loc:" + location.lat + "+" + location.lng,
+                                  title: "Open Google Map"
+                                }]
+                              }
+                            )
+                          });
+                          chatService.sendCarouselReply(senderId, carousel);
+                        })
+                        .catch(function (err) {
+                          console.log(err);
+                          chatService.sendTextMessage(senderId, 'I don\'t have any weather data for ' + message.text);
+                        })
+                    }
+                  })
+                  .catch(function (err) {
+                    console.log(err);
+                    chatService.sendTextMessage(senderId, 'Internal error');
+                  });
+                break;
+              default:
+                chatService.sendTextMessage(senderId, 'Your status : ' + user.status);
+            }
           }
         } else {
           console.log("Webhook received unknown event: ", event);
