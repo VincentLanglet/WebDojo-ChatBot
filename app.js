@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 
 var homepage = require('./routes/index');
+var data     = require('./routes/data');
 var webhook  = require('./routes/webhook');
 
 var app = express();
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/', homepage);
+app.use('/data', data);
 app.use('/webhook', webhook);
 
 // Catch 404 and forward to error handler
