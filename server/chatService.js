@@ -4,6 +4,22 @@ const request = require('request');
 // Get the config const
 const PAGE_ACCESS_TOKEN = config.get('pageAccessToken');
 
+function handleChatCase(senderId, message) {
+  console.log('Received message for user %d with message:', senderId);
+  console.log(JSON.stringify(message));
+
+  var messageText        = message.text;
+  var messageAttachments = message.attachments;
+
+  if (messageText) {
+    sendTextMessage(senderId, messageText);
+  } else if (messageAttachments) {
+    sendTextMessage(senderId, 'J\'ai bien reçu la pièce jointe');
+  } else {
+    sendTextMessage(senderId, 'Je n\'ai pas reçu de message')
+  }
+}
+
 function sendTextMessage(recipientId, messageText, next) {
   var messageData = {
     recipient: {
@@ -64,6 +80,7 @@ function callSendAPI(messageData, next) {
 }
 
 module.exports = {
+  handleChatCase: handleChatCase,
   sendTextMessage: sendTextMessage,
   sendCarouselReply: sendCarouselReply
 };

@@ -1,10 +1,8 @@
 const chatService    = require('../server/chatService');
 const weatherService = require('../server/weatherService');
-const WeatherData    = require('../server/model/weatherData');
 const userService    = require('../server/userService');
-const parser         = require('json-parser');
 
-const allStatus = ['chat', 'météo'];
+const availableStatus = ['chat', 'météo'];
 
 function handleMessage(entry, event) {
   var senderId = event.sender.id;
@@ -15,20 +13,8 @@ function handleMessage(entry, event) {
     var user    = userService.getUser(senderId);
     var message = event.message;
 
-    if (message.text && allStatus.indexOf(message.text.toLowerCase()) !== -1 ) {
-      userService.changeUserStatus(senderId, message.text.toLowerCase());
-      chatService.sendTextMessage(senderId, 'Nouveau statut "' + message.text + '"');
-    } else {
-      switch (user.status) {
-        case 'chat':
-          handleChatCase(senderId, message);
-          break;
-        case 'météo':
-          handleWeatherCase(senderId, message);
-          break;
-        default:
-          chatService.sendTextMessage(senderId, 'Le statut "' + user.status + '" est inconnu');
-      }
+    if (!handleQuickCase(senderId, message)) {
+      switchCase(user.status, senderId, message);
     }
   }
 }
@@ -48,66 +34,51 @@ function handleFirstMessage(entry, event) {
   });
 }
 
-function handleChatCase(senderId, message) {
-  console.log('Received message for user %d with message:', senderId);
-  console.log(JSON.stringify(message));
-
-  var messageText        = message.text;
-  var messageAttachments = message.attachments;
-
-  if (messageText) {
-    chatService.sendTextMessage(senderId, messageText);
-  } else if (messageAttachments) {
-    chatService.sendTextMessage(senderId, 'J\'ai bien reçu la pièce jointe');
-  } else {
-    chatService.sendTextMessage(senderId, 'Je n\'ai pas reçu de message')
+function handleQuickCase(senderId, message) {
+  if (typeof message.text !== 'string') {
+    return false
   }
+
+  var arrayOfMessage = message.text.split(' ');
+
+  if (arrayOfMessage.length > 1) {
+    var action = arrayOfMessage[0].toLowerCase();
+    var status = arrayOfMessage[1].toLowerCase();
+
+    switch (action) {
+      case 'service':
+        // Remove action and status
+        arrayOfMessage.splice(0, 2);
+
+        switchCase(status, senderId, { text: arrayOfMessage.join(' ') });
+
+        return true;
+      case 'statut':
+        if (availableStatus.indexOf(status) !== -1) {
+          userService.changeUserStatus(senderId, status);
+          chatService.sendTextMessage(senderId, 'Nouveau statut "' + status + '"');
+        } else {
+          chatService.sendTextMessage(senderId, 'Le statut "' + status + '" est inconnu');
+        }
+
+        return true;
+    }
+  }
+
+  return false;
 }
 
-function handleWeatherCase(senderId, message) {
-  weatherService.getGeolocalisation(message.text)
-    .then(function (body) {
-      var response = parser.parse(body).results;
-
-      if (response.length <= 0) {
-        chatService.sendTextMessage(senderId, 'Je ne connais pas de ville avec le nom "' + message.text + '"');
-      } else {
-        var location = response[0].geometry.location;
-
-        chatService.sendTextMessage(senderId, 'Voici la météo pour la ville "' + message.text + '"');
-
-        weatherService.getWeatherForecast(location.lat, location.lng)
-          .then(function (body) {
-            var weatherdata = new WeatherData(body);
-            var carousel = [];
-
-            weatherdata.forecast.forEach(function (forecast) {
-              carousel.push(
-                {
-                  title: forecast.display_date,
-                  subtitle: forecast.weather.description + '\n Max : ' + forecast.temp.max + '°C\n Min : ' + forecast.temp.min + '°C',
-                  image_url: forecast.weather.image,
-                  buttons: [{
-                    type: "web_url",
-                    url: "http://maps.google.com/maps?z=12&t=m&q=loc:" + location.lat + "+" + location.lng,
-                    title: "Open Google Map"
-                  }]
-                }
-              )
-            });
-
-            chatService.sendCarouselReply(senderId, carousel);
-          })
-          .catch(function (err) {
-            console.log(err);
-            chatService.sendTextMessage(senderId, 'Je n\'ai pas trouvé la météo de la ville "' + message.text + '"');
-          })
-      }
-    })
-    .catch(function (err) {
-      console.log(err);
-      chatService.sendTextMessage(senderId, 'Internal error');
-    });
+function switchCase(status, senderId, message) {
+  switch (status) {
+    case 'chat':
+      chatService.handleChatCase(senderId, message);
+      break;
+    case 'météo':
+      weatherService.handleWeatherCase(senderId, message);
+      break;
+    default:
+      chatService.sendTextMessage(senderId, 'Le statut "' + status + '" est inconnu');
+  }
 }
 
 module.exports = {
