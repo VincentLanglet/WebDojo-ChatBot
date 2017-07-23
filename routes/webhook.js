@@ -9,6 +9,8 @@ const VALIDATION_TOKEN  = config.get('validationToken');
 
 /* GET webhook auth. */
 router.get('/', function(req, res) {
+  console.log('Webhook get');
+
   if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === VALIDATION_TOKEN) {
     console.log('Validating webhook');
     res.status(200).send(req.query['hub.challenge']);
@@ -20,6 +22,8 @@ router.get('/', function(req, res) {
 
 /* POST route for receiving message */
 router.post('/', function (req, res) {
+  console.log('Webhook post');
+
   var data = req.body;
 
   // Make sure this is a page subscription
