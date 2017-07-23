@@ -1,19 +1,18 @@
-const
-  config = require('config'),
-  parser = require('json-parser');
+const config = require('config');
+const parser = require('json-parser');
 
 // Get the config const
-const SERVER_URL = (process.env.SERVER_URL) ?
-  (process.env.SERVER_URL) :
-  config.get('serverUrl');
+const SERVER_URL = config.get('serverUrl');
 
 function WeatherData(openWeatherMapRawData) {
-  openWeatherMapData = parser.parse(openWeatherMapRawData)
+  var openWeatherMapData = parser.parse(openWeatherMapRawData);
+
   this.city = openWeatherMapData.city;
   this.forecast = readForecastdata(openWeatherMapData);
 
   function readForecastdata(openWeatherMapData) {
     var result = [];
+
     openWeatherMapData.list.forEach(function (element) {
       result.push(
         {
@@ -32,13 +31,14 @@ function WeatherData(openWeatherMapRawData) {
           }
         }
       );
-    })
+    });
 
     return result;
   }
 
   function getweatherImage(weatherId) {
     var image = '';
+
     switch  (Math.trunc(weatherId/100)) {
       case(2):
         image = 'thunderstorm.jpg';
@@ -68,17 +68,21 @@ function WeatherData(openWeatherMapRawData) {
     var d = new Date(timestamp * 1000);
 
     var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
     var monthName = monthNames[d.getMonth()];
     var dayName = days[d.getDay()];
 
     return dayName + ' ' + d.getDate() + ' ' + monthName + ' ' + d.getFullYear();
   }
+
   function convertKelvinToCelsius(temp) {
     return Math.round(temp - 273.15);
   }
-};
+}
 
 // Export the model
 module.exports = WeatherData;

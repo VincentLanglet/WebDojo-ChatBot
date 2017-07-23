@@ -1,5 +1,5 @@
 const jsonDB = require('node-json-db');
-const db = new jsonDB("MyDatabase", true, false);
+const db     = new jsonDB('MyDatabase', true, false);
 
 function isUserKnown(senderId) {
   try {
@@ -27,4 +27,4 @@ module.exports = {
   addUser: addUser,
   changeUserStatus: changeUserStatus,
   getUser: getUser
-}
+};

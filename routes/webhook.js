@@ -1,18 +1,19 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router  = express.Router();
 
-const
-  chatService = require('../server/chatService'),
-  weatherService = require('../server/weatherService'),
-  WeatherData = require('../server/model/weatherData'),
-  userService = require('../server/userService'),
-  parser = require('json-parser');
+const config         = require('config');
+const handlerService = require('../server/handlerService');
+
+// Get the config const
+const VALIDATION_TOKEN  = config.get('validationToken');
 
 /* GET webhook auth. */
-router.get('/', function(req, res, next) {
-  if (chatService.authenticate(req)) {
+router.get('/', function(req, res) {
+  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === VALIDATION_TOKEN) {
+    console.log('Validating webhook');
     res.status(200).send(req.query['hub.challenge']);
   } else {
+    console.error('Failed validation. Make sure the validation tokens match.');
     res.sendStatus(403);
   }
 });
@@ -26,84 +27,19 @@ router.post('/', function (req, res) {
 
     // Iterate over each entry - there may be multiple if batched
     data.entry.forEach(function(entry) {
-      var timeOfEvent = entry.time;
 
       // Iterate over each messaging event
       entry.messaging.forEach(function(event) {
         if (event.message) {
-          var senderId = event.sender.id;
-
-          if (!userService.isUserKnown(senderId)) {
-            userService.addUser(senderId, {
-              id: senderId,
-              createdAt: timeOfEvent,
-              status: 'station'
-            });
-            chatService.sendTextMessage(senderId, 'Hello, my name is Shauny, nice to meet you !');
-          } else {
-            var user = userService.getUser(senderId);
-            var message = event.message;
-
-            switch(user.status) {
-              case 'station':
-                weatherService.getGeolocalisation(message.text)
-                  .then(function (body) {
-                    var response = parser.parse(body).results;
-
-                    if (response.length <= 0) {
-                      chatService.sendTextMessage(senderId, 'I don\'t find any city with this name');
-                    } else {
-                      var location = response[0].geometry.location;
-
-                      chatService.sendTextMessage(senderId, 'This is the weather forecast for ' + message.text);
-
-                      weatherService.getWeatherForecast(location.lat, location.lng)
-                        .then(function (body) {
-                          var weatherdata = new WeatherData(body);
-                          var carousel = [];
-
-                          weatherdata.forecast.forEach(function (forecast) {
-                            carousel.push(
-                              {
-                                title: forecast.display_date,
-                                subtitle: forecast.weather.description + '\n Max : ' + forecast.temp.max + '°C\n Min : ' + forecast.temp.min + '°C',
-                                image_url: forecast.weather.image,
-                                buttons: [{
-                                  type: "web_url",
-                                  url: "http://maps.google.com/maps?z=12&t=m&q=loc:" + location.lat + "+" + location.lng,
-                                  title: "Open Google Map"
-                                }]
-                              }
-                            )
-                          });
-                          chatService.sendCarouselReply(senderId, carousel);
-                        })
-                        .catch(function (err) {
-                          console.log(err);
-                          chatService.sendTextMessage(senderId, 'I don\'t have any weather data for ' + message.text);
-                        })
-                    }
-                  })
-                  .catch(function (err) {
-                    console.log(err);
-                    chatService.sendTextMessage(senderId, 'Internal error');
-                  });
-                break;
-              default:
-                chatService.sendTextMessage(senderId, 'Your status : ' + user.status);
-            }
-          }
+          handlerService.handleMessage(entry, event);
         } else {
           console.log("Webhook received unknown event: ", event);
         }
       });
     });
 
-    // Assume all went well.
-    //
-    // You must send back a 200, within 20 seconds, to let us know
-    // you've successfully received the callback. Otherwise, the request
-    // will time out and we will keep trying to resend.
+    // You must send back a 200, within 20 seconds, to let us know you've successfully received the callback.
+    // Otherwise, the request will time out and we will keep trying to resend.
     res.sendStatus(200);
   }
 });
