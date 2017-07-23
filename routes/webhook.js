@@ -37,7 +37,7 @@ router.post('/', function (req, res) {
         if (event.message) {
           handlerService.handleMessage(entry, event);
         } else {
-          console.log("Webhook received unknown event: ", event);
+          console.log('Webhook received unknown event: ', event);
         }
       });
     });

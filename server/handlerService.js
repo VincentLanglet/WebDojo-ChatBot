@@ -43,8 +43,9 @@ function handleFirstMessage(entry, event) {
     status: 'chat'
   });
 
-  chatService.sendTextMessage(senderId, 'Bonjour');
-  handleMessage(entry, event);
+  chatService.sendTextMessage(senderId, 'Bonjour', function() {
+    handleMessage(entry, event);
+  });
 }
 
 function handleChatCase(senderId, message) {
