@@ -1,5 +1,5 @@
 const jsonDB = require('node-json-db');
-const db     = new jsonDB('MyDatabase', true, false);
+const db     = new jsonDB('database', true, false);
 
 function isUserKnown(senderId) {
   try {
