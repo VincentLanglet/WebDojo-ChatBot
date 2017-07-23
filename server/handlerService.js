@@ -4,7 +4,7 @@ const WeatherData    = require('../server/model/weatherData');
 const userService    = require('../server/userService');
 const parser         = require('json-parser');
 
-const allStatus = ['chat', 'weather'];
+const allStatus = ['chat', 'météo'];
 
 function handleMessage(entry, event) {
   var senderId = event.sender.id;
@@ -12,21 +12,22 @@ function handleMessage(entry, event) {
   if (!userService.isUserKnown(senderId)) {
     handleFirstMessage(entry, event);
   } else {
-    var user = userService.getUser(senderId);
+    var user    = userService.getUser(senderId);
     var message = event.message;
 
-    if (allStatus.indexOf(message.text) !== -1) {
-      userService.changeUserStatus(senderId, message.text);
+    if (message.text && allStatus.indexOf(message.text.toLowerCase()) !== -1 ) {
+      userService.changeUserStatus(senderId, message.text.toLowerCase());
+      chatService.sendTextMessage(senderId, 'Nouveau statut "' + message.text + '"');
     } else {
       switch (user.status) {
         case 'chat':
           handleChatCase(senderId, message);
           break;
-        case 'weather':
+        case 'météo':
           handleWeatherCase(senderId, message);
           break;
         default:
-          chatService.sendTextMessage(senderId, 'Le status "' + user.status + '" est inconnu');
+          chatService.sendTextMessage(senderId, 'Le statut "' + user.status + '" est inconnu');
       }
     }
   }
