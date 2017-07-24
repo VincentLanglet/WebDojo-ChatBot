@@ -1,9 +1,13 @@
-const chatService    = require('../server/chatService');
-const weatherService = require('../server/weatherService');
-const userService    = require('../server/userService');
+var chatService    = require('../server/chatService');
+var weatherService = require('../server/weatherService');
+var userService    = require('../server/userService');
 
-const availableStatus = ['chat', 'météo'];
+var availableStatus = ['chat', 'météo'];
 
+/**
+ * @param object entry
+ * @param object event
+ */
 function handleMessage(entry, event) {
   var senderId = event.sender.id;
 
@@ -19,9 +23,13 @@ function handleMessage(entry, event) {
   }
 }
 
+/**
+ * @param object entry
+ * @param object event
+ */
 function handleFirstMessage(entry, event) {
   var timeOfEvent = entry.time;
-  var senderId = event.sender.id;
+  var senderId    = event.sender.id;
 
   userService.addUser(senderId, {
     id: senderId,
@@ -34,6 +42,12 @@ function handleFirstMessage(entry, event) {
   });
 }
 
+/**
+ * @param int    senderId
+ * @param object message
+ *
+ * @returns bool
+ */
 function handleQuickCase(senderId, message) {
   if (typeof message.text !== 'string') {
     return false
@@ -68,6 +82,11 @@ function handleQuickCase(senderId, message) {
   return false;
 }
 
+/**
+ * @param string status
+ * @param int    senderId
+ * @param object message
+ */
 function switchCase(status, senderId, message) {
   switch (status) {
     case 'chat':

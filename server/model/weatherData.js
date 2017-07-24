@@ -1,13 +1,16 @@
-const config = require('config');
-const parser = require('json-parser');
+var config = require('config');
+var parser = require('json-parser');
 
-// Get the config const
-const SERVER_URL = config.get('serverUrl');
+// Get the config var
+var SERVER_URL = config.get('serverUrl');
 
+/**
+ * @param object openWeatherMapRawData
+ */
 function WeatherData(openWeatherMapRawData) {
   var openWeatherMapData = parser.parse(openWeatherMapRawData);
 
-  this.city = openWeatherMapData.city;
+  this.city     = openWeatherMapData.city;
   this.forecast = readForecastdata(openWeatherMapData);
 
   function readForecastdata(openWeatherMapData) {
@@ -74,7 +77,7 @@ function WeatherData(openWeatherMapRawData) {
     ];
 
     var monthName = monthNames[d.getMonth()];
-    var dayName = days[d.getDay()];
+    var dayName   = days[d.getDay()];
 
     return dayName + ' ' + d.getDate() + ' ' + monthName + ' ' + d.getFullYear();
   }

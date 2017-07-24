@@ -1,14 +1,18 @@
-const config  = require('config');
-const request = require('request-promise');
+var config  = require('config');
+var request = require('request-promise');
 
-const chatService    = require('../server/chatService');
-const WeatherData    = require('../server/model/weatherData');
-const parser         = require('json-parser');
+var chatService = require('../server/chatService');
+var WeatherData = require('../server/model/weatherData');
+var parser      = require('json-parser');
 
-// Get the config const
-const GOOGLE_API_TOKEN  = config.get('googleApiToken');
-const WEATHER_API_TOKEN = config.get('weatherApiToken');
+// Get the config var
+var GOOGLE_API_TOKEN  = config.get('googleApiToken');
+var WEATHER_API_TOKEN = config.get('weatherApiToken');
 
+/**
+ * @param int    senderId
+ * @param object message
+ */
 function handleWeatherCase(senderId, message) {
   getGeolocalisation(message.text)
     .then(function (body) {
@@ -49,17 +53,22 @@ function handleWeatherCase(senderId, message) {
             chatService.sendCarouselReply(senderId, carousel);
           })
           .catch(function (err) {
-            console.log(err);
+            console.error(err);
             chatService.sendTextMessage(senderId, 'Je n\'ai pas trouvé la météo de la ville "' + message.text + '"');
           })
       }
     })
     .catch(function (err) {
-      console.log(err);
+      console.error(err);
       chatService.sendTextMessage(senderId, 'Erreur interne');
     });
 }
 
+/**
+ * @param string cityName
+ *
+ * @returns object
+ */
 function getGeolocalisation(cityName) {
   return request({
     uri: 'https://maps.googleapis.com/maps/api/geocode/json',
@@ -71,6 +80,12 @@ function getGeolocalisation(cityName) {
   });
 }
 
+/**
+ * @param string lat
+ * @param string lng
+ *
+ * @returns object
+ */
 function getWeatherForecast(lat, lng) {
   return request({
     uri: 'http://api.openweathermap.org/data/2.5/forecast/daily',

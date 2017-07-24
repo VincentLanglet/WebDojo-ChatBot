@@ -1,7 +1,7 @@
-const express = require('express');
-const router  = express.Router();
+var express = require('express');
+var router  = express.Router();
 
-const userService = require('../server/userService');
+var userService = require('../server/userService');
 
 /* GET webhook auth. */
 router.get('/', function(req, res) {

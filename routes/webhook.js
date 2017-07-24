@@ -1,11 +1,11 @@
-const express = require('express');
-const router  = express.Router();
+var express = require('express');
+var router  = express.Router();
 
-const config         = require('config');
-const handlerService = require('../server/handlerService');
+var config         = require('config');
+var handlerService = require('../server/handlerService');
 
-// Get the config const
-const VALIDATION_TOKEN  = config.get('validationToken');
+// Get the config var
+var VALIDATION_TOKEN  = config.get('validationToken');
 
 /* GET webhook auth. */
 router.get('/', function(req, res) {
