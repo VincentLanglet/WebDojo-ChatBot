@@ -2,7 +2,7 @@ var jsonDB = require('node-json-db');
 var db     = new jsonDB('database', true, false);
 
 /**
- * @param int senderId
+ * @param {int} senderId
  *
  * @returns bool
  */
@@ -16,8 +16,8 @@ function isUserKnown(senderId) {
 }
 
 /**
- * @param int    senderId
- * @param object userData
+ * @param {int}    senderId
+ * @param {object} userData
  */
 function addUser(senderId, userData) {
   db.push('/users/' + senderId, userData)
@@ -31,7 +31,7 @@ function getData() {
 }
 
 /**
- * @param int senderId
+ * @param {int} senderId
  *
  * @returns object
  */
@@ -40,8 +40,8 @@ function getUser(senderId) {
 }
 
 /**
- * @param int    senderId
- * @param string status
+ * @param {int}    senderId
+ * @param {string} status
  */
 function changeUserStatus(senderId, status) {
   db.push('/users/' + senderId + '/status', status);

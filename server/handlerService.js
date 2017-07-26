@@ -5,8 +5,8 @@ var userService    = require('../server/userService');
 var availableStatus = ['chat', 'météo'];
 
 /**
- * @param object entry
- * @param object event
+ * @param {object} entry
+ * @param {object} event
  */
 function handleMessage(entry, event) {
   var senderId = event.sender.id;
@@ -24,8 +24,8 @@ function handleMessage(entry, event) {
 }
 
 /**
- * @param object entry
- * @param object event
+ * @param {object} entry
+ * @param {object} event
  */
 function handleFirstMessage(entry, event) {
   var timeOfEvent = entry.time;
@@ -43,14 +43,14 @@ function handleFirstMessage(entry, event) {
 }
 
 /**
- * @param int    senderId
- * @param object message
+ * @param {int}    senderId
+ * @param {object} message
  *
- * @returns bool
+ * @returns boolean
  */
 function handleQuickCase(senderId, message) {
   if (typeof message.text !== 'string') {
-    return false
+    return false;
   }
 
   var arrayOfMessage = message.text.split(' ');
@@ -83,9 +83,9 @@ function handleQuickCase(senderId, message) {
 }
 
 /**
- * @param string status
- * @param int    senderId
- * @param object message
+ * @param {string} status
+ * @param {int}    senderId
+ * @param {object} message
  */
 function switchCase(status, senderId, message) {
   switch (status) {

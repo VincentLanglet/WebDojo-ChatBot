@@ -5,7 +5,7 @@ var parser = require('json-parser');
 var SERVER_URL = config.get('serverUrl');
 
 /**
- * @param object openWeatherMapRawData
+ * @param {object} openWeatherMapRawData
  */
 function WeatherData(openWeatherMapRawData) {
   var openWeatherMapData = parser.parse(openWeatherMapRawData);

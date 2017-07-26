@@ -5,8 +5,8 @@ var request = require('request');
 var PAGE_ACCESS_TOKEN = config.get('pageAccessToken');
 
 /**
- * @param int    senderId
- * @param object message
+ * @param {int}    senderId
+ * @param {object} message
  */
 function handleChatCase(senderId, message) {
   console.log('Received message for user %d with message:', senderId);
@@ -25,9 +25,9 @@ function handleChatCase(senderId, message) {
 }
 
 /**
- * @param int      recipientId
- * @param string   messageText
- * @param function next
+ * @param {int}      recipientId
+ * @param {string}   messageText
+ * @param {function} next
  */
 function sendTextMessage(recipientId, messageText, next) {
   var messageData = {
@@ -43,9 +43,9 @@ function sendTextMessage(recipientId, messageText, next) {
 }
 
 /**
- * @param int      recipientId
- * @param array    carousel
- * @param function next
+ * @param {int}      recipientId
+ * @param {array}    carousel
+ * @param {function} next
  */
 function sendCarouselReply(recipientId, carousel, next) {
   var messageData = {
@@ -67,8 +67,8 @@ function sendCarouselReply(recipientId, carousel, next) {
 }
 
 /**
- * @param object   messageData
- * @param function next
+ * @param {object}   messageData
+ * @param {function} next
  */
 function callSendAPI(messageData, next) {
   request(

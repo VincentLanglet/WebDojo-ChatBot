@@ -10,8 +10,8 @@ var GOOGLE_API_TOKEN  = config.get('googleApiToken');
 var WEATHER_API_TOKEN = config.get('weatherApiToken');
 
 /**
- * @param int    senderId
- * @param object message
+ * @param {int}    senderId
+ * @param {object} message
  */
 function handleWeatherCase(senderId, message) {
   getGeolocalisation(message.text)
@@ -65,7 +65,7 @@ function handleWeatherCase(senderId, message) {
 }
 
 /**
- * @param string cityName
+ * @param {string} cityName
  *
  * @returns object
  */
@@ -81,8 +81,8 @@ function getGeolocalisation(cityName) {
 }
 
 /**
- * @param string lat
- * @param string lng
+ * @param {string} lat
+ * @param {string} lng
  *
  * @returns object
  */
